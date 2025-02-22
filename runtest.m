@@ -3,7 +3,7 @@ clc
 
 %%
 
-fcnid = 15;
+fcnid = 3;
 obj2 = 'cec17_func';
 
 dim = 30;
