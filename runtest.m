@@ -1,7 +1,6 @@
 clearvars
 clc
-
-%% Function selecting
+%% Functions
 func = 'cec22_func';
 obj = str2func(func);
 fcnid = 1; 
@@ -26,7 +25,7 @@ Xbest = x_best(ib,:);
 Best = min(f_best)
 Mean = mean(f_best)
 Std = std(f_best)
-%%
+%% Plots
 figure(1)
 subplot(1,2,1)
 xp = linspace(-100,100,1000);
@@ -50,8 +49,4 @@ grid on
 ylabel('Average Best');
 xlabel('Iteration');
 title(['F',num2str(fcnid),', n=',num2str(dim)])
-%%
-table = [Mean,Std,Best]
-figure(2)
-semilogy(f_best_records)
 
