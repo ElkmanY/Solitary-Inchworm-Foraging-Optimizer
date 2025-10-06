@@ -1,14 +1,14 @@
 clearvars
 clc
 %% Functions
-func = 'cec22_func';
-obj = str2func(func);
-fcnid = 2; 
-dim = 10;
+func = str2func('cec22_func');
+fcnid = 1; 
+obj = @(x) func(x',fcnid);
+dim = 20;
 lb = -100*ones(1,dim);
 ub = 100*ones(1,dim);
 %% Parameters
-iterMax = 5e5;
+iterMax = 1e5;
 runsMax = 1;
 params = [0.8,50,0.5]; % parameters: [alpha, m, delta]
 %% Optimization
@@ -16,8 +16,8 @@ f_best = zeros(runsMax,1);
 x_best = zeros(runsMax,dim);
 f_best_records = zeros(iterMax,runsMax);
 parfor runs = 1:runsMax
-    [f_best(runs,:),x_best(runs,:),f_best_records(:,runs)] ...
-        = SIFO( func, fcnid, dim, lb, ub, iterMax, params);
+    [x_best(runs,:),f_best(runs,:),f_best_records(:,runs)] ...
+        = SIFO(obj, dim, lb, ub, iterMax, params);
 end
 %% Results
 [~,ib] = min(f_best);
@@ -33,7 +33,7 @@ yp = linspace(-100,100,1000);
 [Xp,Yp] = meshgrid(xp,yp);
 Zp = zeros(size(Xp));
 for i = 1:length(Xp(:))
-    Zp(i) = feval(obj, [Xp(i),Yp(i)]',fcnid);
+    Zp(i) = feval(obj, [Xp(i),Yp(i)]);
 end
 surfc(Xp,Yp,Zp,'EdgeColor','none')
 box on;
@@ -49,6 +49,3 @@ grid on
 ylabel('Average Best');
 xlabel('Iteration');
 title(['F',num2str(fcnid),', n=',num2str(dim)])
-
-%%
-table = [Mean,Std]

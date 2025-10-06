@@ -1,15 +1,17 @@
-function [f_best,x_best,f_best_records] ...
-    = SIFO(func,funcid,dim,lb,ub,iterMax,params)
+function [x_best,f_best,f_best_records] ...
+    = SIFO(obj,dim,lb,ub,iterMax,params)
 % Solitary inchworm foraging optimizer
-obj = str2func(func);
 %%
+if nargin<6
+    params = [0.8,50,0.5];
+end
 alpha = params(1);
 m = params(2);
 delta = params(3);
 %%
 ntry = 1;
 xH = lhsdesign(ntry,dim).^(dim).*(ub-lb) + lb;
-fx = feval(obj, xH',funcid);
+fx = feval(obj, xH);
 [fb,ib] = min(fx);
 xH = xH(ib,:);
 fH = fb;
@@ -24,7 +26,7 @@ h = L;
 mu = zeros(1,dim);
 sigma = ones(1,dim)*10;
 E = 1;
-Es = .1/iterMax/m;
+Es = .001/iterMax/m;
 Ef = 0.002;
 Ew = 2;
 km = 1;
@@ -35,7 +37,7 @@ for iter = 1:iterMax
         R = rand(1,dim);
         xi = mu -sqrt(2)*sigma.* erfinv((1 - R).* erf((mu + 1)/sqrt(2)./sigma) + R.* erf((mu - 1)/sqrt(2)./sigma));
         xv = xi.*(ub-lb) + lb;
-        fv = feval(obj, xv',funcid);
+        fv = feval(obj, xv);
         flag = fv<fH;
         mu_ = tanh(mu + 1/200*(-1).^(~flag)*(xv-xH));
         sigma2 = sigma.^2 + .01*(  mu.^2 - mu_.^2 + 1/200*(-1).^(~flag)*(xv.^2-xH.^2) );
@@ -44,11 +46,11 @@ for iter = 1:iterMax
         sigma = sqrt(sigma2);
         xH = xH + 1./vecnorm(xv-xH).*(xv-xH).*h*rand(1)^(1/dim);
         xH = min(max(xH,lb),ub);
-        fH = feval(obj, xH',funcid);
+        fH = feval(obj, xH);
         b = exp(-2*E);
         xT = xT + (1-b)*(xH-xT);
         xT = min(max(xT,lb),ub);
-        fT = feval(obj, xT',funcid);
+        fT = feval(obj, xT);
         E = E - Ec(b);
     elseif E> 0
         p = zeros(m,dim);
@@ -62,26 +64,24 @@ for iter = 1:iterMax
         end
         d = rand(m,1).^(1/dim).*(p - xH)./vecnorm((p - xH)')';
         q = xH + h.*d;
-        fq = feval(obj, q',funcid);
+        fq = feval(obj, q);
         [~,ib] = min(fq);
         
-        
         gamma = exp((iter-iterMax)/iterMax);
-        % xH = xH + delta*(h).^(gamma).*d(ib,:);
         xH = xH + delta*h.^(gamma).*(p(ib,:) - xH)/norm(p(ib,:) - xH);
 
         xH = min(max(xH,lb),ub);
-        fH = feval(obj, xH',funcid);
+        fH = feval(obj, xH);
         b = exp(-2*E);
         xT = xT + (1-b)*(xH-xT);
         xT = min(max(xT,lb),ub);
-        fT = feval(obj, xT',funcid);
+        fT = feval(obj, xT);
         E = E - Ec(b) - m*Es;
     else
         
         xT = xT + h*Levy(1,dim);
         xT = min(max(xT,lb),ub);
-        fT = feval(obj, xT',funcid);
+        fT = feval(obj, xT);
         xH = xT;
         fH = fT;
         g = xT;
