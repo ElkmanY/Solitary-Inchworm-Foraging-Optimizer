@@ -3,13 +3,13 @@ clc
 %% Functions
 func = 'cec22_func';
 obj = str2func(func);
-fcnid = 1; 
-dim = 20;
+fcnid = 2; 
+dim = 10;
 lb = -100*ones(1,dim);
 ub = 100*ones(1,dim);
 %% Parameters
-iterMax = 1e4;
-runsMax = 30;
+iterMax = 5e5;
+runsMax = 1;
 params = [0.8,50,0.5]; % parameters: [alpha, m, delta]
 %% Optimization
 f_best = zeros(runsMax,1);
@@ -50,3 +50,5 @@ ylabel('Average Best');
 xlabel('Iteration');
 title(['F',num2str(fcnid),', n=',num2str(dim)])
 
+%%
+table = [Mean,Std]
